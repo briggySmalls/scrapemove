@@ -28,6 +28,7 @@ python = ">=3.7,<4"
 click = "*"
 pydantic = "^1.10.2"
 inflection = "^0.5.1"
+beautifulsoup4 = "^4.11.1"
 
 [tool.poetry.dev-dependencies]
 bumpversion = "*"

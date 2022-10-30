@@ -4,13 +4,15 @@ import sys
 
 import click
 
+from scrapemove.scrapemove import request
+
 
 @click.command()
-def main():
+@click.argument('url')
+@click.option('--parallelism', type=int)
+def main(url, parallelism):
     """Console script for scrapemove."""
-    click.echo("Replace this message by putting your code into "
-               "scrapemove.cli.main")
-    click.echo("See click documentation at https://click.palletsprojects.com/")
+    click.echo(request(url, parallelism=parallelism))
     return 0
 
 
