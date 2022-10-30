@@ -4,7 +4,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from scrapemove.models import Property
+from scrapemove.models import ResultsScreenData
 
 
 _TEST_DIR = Path(__file__).parent
@@ -16,9 +16,9 @@ with open(_RESULTS_SCREEN_DATA_FILE) as file:
 
 
 
-@pytest.mark.parametrize("data", _RESULTS_SCREEN_DATA["properties"])
+@pytest.mark.parametrize("data", [_RESULTS_SCREEN_DATA])
 def test_parse_properties(data):
 	try:
-		Property(**data)
+		ResultsScreenData(**data)
 	except ValidationError as exc:
 		assert False, f"Validation failed: {exc}"

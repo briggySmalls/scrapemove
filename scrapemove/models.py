@@ -1,6 +1,6 @@
 """Data classes to enclose rightmove data"""
 from pydantic import BaseModel, HttpUrl, Field
-from typing import Optional
+from typing import Optional, List
 from enum import Enum
 
 from datetime import datetime
@@ -30,10 +30,21 @@ class Price(CamelCaseBaseModel):
     qualifier: Optional[str]
 
 
+class PaginationOption(CamelCaseBaseModel):
+    value: int
+    description: int
+
+
+class Pagination(CamelCaseBaseModel):
+    first: int
+    last: int
+    options: List[PaginationOption]
+
+
 class Property(CamelCaseBaseModel):
     id: int
     bedrooms: int
-    bathrooms: int
+    bathrooms: Optional[int]
     number_of_images: int
     number_of_floorplans: int
     summary: Optional[str]
@@ -51,120 +62,19 @@ class Property(CamelCaseBaseModel):
     students: bool
     auction: bool
     feesApply: bool
+    displaySize: str
     propertyUrl: str
     contactUrl: str
     firstVisibleDate: datetime
 
     def __init__(self, **kwargs):
         """Remap some fields"""
+        # Unnest product label
         kwargs["productLabel"] = kwargs["productLabel"]["productLabelText"]
         super().__init__(**kwargs)
 
 
-"""
-{
-        "id": 0,
-        "bedrooms": 0,
-        "bathrooms": 0,
-        "numberOfImages": 0,
-        "numberOfFloorplans": 0,
-        "numberOfVirtualTours": 0,
-        "summary": null,
-        "displayAddress": null,
-        "countryCode": null,
-        "location":
-        {
-            "latitude": null,
-            "longitude": null
-        },
-        "propertyImages":
-        {
-            "images":
-            [],
-            "mainImageSrc": "",
-            "mainMapImageSrc": ""
-        },
-        "propertySubType": null,
-        "listingUpdate":
-        {
-            "listingUpdateReason": null,
-            "listingUpdateDate": "2016-12-03T23:53:38Z"
-        },
-        "premiumListing": false,
-        "featuredProperty": false,
-        "price":
-        {
-            "amount": 0,
-            "frequency": "",
-            "currencyCode": "",
-            "displayPrices":
-            [
-                {
-                    "displayPrice": "",
-                    "displayPriceQualifier": ""
-                }
-            ]
-        },
-        "customer":
-        {
-            "branchId": null,
-            "brandPlusLogoURI": null,
-            "contactTelephone": null,
-            "branchDisplayName": null,
-            "branchName": null,
-            "brandTradingName": null,
-            "branchLandingPageUrl": null,
-            "development": false,
-            "showReducedProperties": false,
-            "commercial": false,
-            "showOnMap": false,
-            "enhancedListing": false,
-            "developmentContent": null,
-            "buildToRent": false,
-            "buildToRentBenefits": null,
-            "brandPlusLogoUrl": ""
-        },
-        "distance": null,
-        "transactionType": null,
-        "productLabel":
-        {
-            "productLabelText": null,
-            "spotlightLabel": false
-        },
-        "commercial": false,
-        "development": false,
-        "residential": false,
-        "students": false,
-        "auction": false,
-        "feesApply": false,
-        "feesApplyText": "fees apply text",
-        "displaySize": "size label",
-        "showOnMap": false,
-        "propertyUrl": "",
-        "contactUrl": "",
-        "staticMapUrl": "",
-        "channel": "BUY",
-        "firstVisibleDate": "2017-11-05T23:53:38Z",
-        "keywords":
-        [],
-        "keywordMatchType": "no_keyword",
-        "saved": false,
-        "hidden": false,
-        "onlineViewingsAvailable": false,
-        "lozengeModel":
-        {
-            "matchingLozenges":
-            []
-        },
-        "hasBrandPlus": false,
-        "displayStatus": "",
-        "enquiredTimestamp": null,
-        "isRecent": false,
-        "enhancedListing": false,
-        "heading": "",
-        "addedOrReduced": "",
-        "formattedBranchName": "",
-        "formattedDistance": "",
-        "propertyTypeFullDescription": "Property"
-    },
-"""
+class ResultsScreenData(CamelCaseBaseModel):
+    properties: List[Property]
+    pagination: Pagination
+    resultCount: int
