@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from scrapemove.property_details import PropertyDetailsScreenData
+from scrapemove.models import PropertyDetailsScreenData
 
 _TEST_DIR = Path(__file__).parent
 _TEST_DATA_DIR = _TEST_DIR / "test_data"

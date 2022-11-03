@@ -1,15 +1,11 @@
 """Main module."""
-import json
-import re
 from multiprocessing import Pool
 from typing import Dict, List
 from urllib import parse
 
 import requests
-from bs4 import BeautifulSoup
 
-from scrapemove.models import Property, ResultsScreenData
-from scrapemove.property_details import PropertyDetailsScreenData
+from scrapemove.models import Property, ResultsScreenData, PropertyDetailsScreenData
 
 _DEFAULT_THREADPOOL = 1
 _VALID_DOMAIN = "www.rightmove.co.uk"

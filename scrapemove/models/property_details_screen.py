@@ -1,11 +1,8 @@
-from datetime import datetime
-from enum import Enum
 from typing import List, Optional
 
-from inflection import camelize
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import HttpUrl
 
-from scrapemove.models import CamelCaseBaseModel, Location, Price, _parse_from_page
+from scrapemove.models.common import CamelCaseBaseModel, Location, Price, _parse_from_page
 
 
 class Station(CamelCaseBaseModel):
