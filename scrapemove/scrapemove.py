@@ -1,14 +1,15 @@
 """Main module."""
-from scrapemove.models import ResultsScreenData, Property
-from scrapemove.property_details import PropertyDetailsScreenData
-import re
-from typing import List, Dict
-from urllib import parse
-import requests
-from multiprocessing import Pool
-from bs4 import BeautifulSoup
 import json
+import re
+from multiprocessing import Pool
+from typing import Dict, List
+from urllib import parse
 
+import requests
+from bs4 import BeautifulSoup
+
+from scrapemove.models import Property, ResultsScreenData
+from scrapemove.property_details import PropertyDetailsScreenData
 
 _DEFAULT_THREADPOOL = 1
 _VALID_DOMAIN = "www.rightmove.co.uk"
@@ -25,7 +26,10 @@ def _validate_url(url: str):
     if parsed.netloc != _VALID_DOMAIN:
         raise ValueError(f"Invalid domain: {parsed.netloc} (must be {_VALID_DOMAIN}")
 
-    valid_paths = [f"/{p}/find.html" for p in ["property-to-rent", "property-for-sale", "new-homes-for-sale"]]
+    valid_paths = [
+        f"/{p}/find.html"
+        for p in ["property-to-rent", "property-for-sale", "new-homes-for-sale"]
+    ]
     if parsed.path not in valid_paths:
         raise ValueError(f"Invalid path: {parsed.path} (must be {valid_paths}")
 
@@ -65,16 +69,16 @@ def _flat_map(f, xs):
     return ys
 
 
-def request(url: str, detailed=False, parallelism=_DEFAULT_THREADPOOL) -> List[Property]:
+def request(
+    url: str, detailed=False, parallelism=_DEFAULT_THREADPOOL
+) -> List[Property]:
     # Validate
     _validate_url(url)
     # Request the first page
     first_page = _load_results_page(url)
     # Extract the remaining pages
     next_page_urls = [
-        f"{url}&index={option.value}"
-        for option in
-        first_page.pagination.options
+        f"{url}&index={option.value}" for option in first_page.pagination.options
     ]
     with Pool(parallelism) as p:
         subsequent_pages = p.map(_load_results_page, next_page_urls[1:])
@@ -84,7 +88,10 @@ def request(url: str, detailed=False, parallelism=_DEFAULT_THREADPOOL) -> List[P
     # Request further details if necessary
     if detailed:
         with Pool(parallelism) as p:
-            details_pages = p.map(_load_details_page, [f"https://{_VALID_DOMAIN}{p.propertyUrl}" for p in property_list])
+            details_pages = p.map(
+                _load_details_page,
+                [f"https://{_VALID_DOMAIN}{p.propertyUrl}" for p in property_list],
+            )
         return list(map(lambda d: d.property_data, details_pages))
     else:
         return property_list

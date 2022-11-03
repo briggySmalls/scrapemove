@@ -1,14 +1,13 @@
 """Data classes to enclose rightmove data"""
-from bs4 import BeautifulSoup
-from pydantic import BaseModel, HttpUrl, Field
-from typing import Optional, List
-from enum import Enum
 import json
 import re
-
 from datetime import datetime
+from enum import Enum
+from typing import List, Optional
 
+from bs4 import BeautifulSoup
 from inflection import camelize
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class CamelCaseBaseModel(BaseModel):
@@ -19,7 +18,7 @@ class CamelCaseBaseModel(BaseModel):
 def _parse_from_page(content: str, regex, cls):
     soup = BeautifulSoup(content, "html.parser")
     script = soup.find("script", string=re.compile(regex))
-    data_str = re.sub(regex, '', script.string)
+    data_str = re.sub(regex, "", script.string)
     data_py = json.loads(data_str)
     return cls(**data_py)
 
@@ -92,4 +91,4 @@ class ResultsScreenData(CamelCaseBaseModel):
 
     @staticmethod
     def from_page_content(content: str) -> "ResultsScreenData":
-        return _parse_from_page(content, r'window\.jsonModel =', ResultsScreenData)
+        return _parse_from_page(content, r"window\.jsonModel =", ResultsScreenData)

@@ -1,12 +1,11 @@
-from pydantic import BaseModel, HttpUrl, Field
-from typing import Optional, List
-from enum import Enum
-
 from datetime import datetime
+from enum import Enum
+from typing import List, Optional
 
 from inflection import camelize
+from pydantic import BaseModel, Field, HttpUrl
 
-from scrapemove.models import CamelCaseBaseModel, Price, Location, _parse_from_page
+from scrapemove.models import CamelCaseBaseModel, Location, Price, _parse_from_page
 
 
 class Station(CamelCaseBaseModel):
@@ -52,4 +51,6 @@ class PropertyDetailsScreenData(CamelCaseBaseModel):
 
     @staticmethod
     def from_page_content(content: str) -> "PropertyDetailsScreenData":
-        return _parse_from_page(content, r'window\.PAGE_MODEL =', PropertyDetailsScreenData)
+        return _parse_from_page(
+            content, r"window\.PAGE_MODEL =", PropertyDetailsScreenData
+        )
