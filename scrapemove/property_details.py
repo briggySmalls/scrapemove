@@ -6,7 +6,7 @@ from datetime import datetime
 
 from inflection import camelize
 
-from scrapemove.models import CamelCaseBaseModel, Price, Location
+from scrapemove.models import CamelCaseBaseModel, Price, Location, _parse_from_page
 
 
 class Station(CamelCaseBaseModel):
@@ -30,6 +30,7 @@ class PropertyDetails(CamelCaseBaseModel):
     nearest_stations: List[Station]
     bedrooms: int
     bathrooms: Optional[int]
+    # Sizings
     brochures: List[str]
 
     def __init__(self, **kwargs):
@@ -45,5 +46,10 @@ class PropertyDetails(CamelCaseBaseModel):
         kwargs["propertyPhrase"] = text["propertyPhrase"]
         super().__init__(**kwargs)
 
+
 class PropertyDetailsScreenData(CamelCaseBaseModel):
     property_data: PropertyDetails
+
+    @staticmethod
+    def from_page_content(content: str) -> "PropertyDetailsScreenData":
+        return _parse_from_page(content, r'window\.PAGE_MODEL =', PropertyDetailsScreenData)

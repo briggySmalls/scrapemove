@@ -1,7 +1,10 @@
 """Data classes to enclose rightmove data"""
+from bs4 import BeautifulSoup
 from pydantic import BaseModel, HttpUrl, Field
 from typing import Optional, List
 from enum import Enum
+import json
+import re
 
 from datetime import datetime
 
@@ -11,6 +14,14 @@ from inflection import camelize
 class CamelCaseBaseModel(BaseModel):
     class Config:
         alias_generator = lambda s: camelize(s, False)
+
+
+def _parse_from_page(content: str, regex, cls):
+    soup = BeautifulSoup(content, "html.parser")
+    script = soup.find("script", string=re.compile(regex))
+    data_str = re.sub(regex, '', script.string)
+    data_py = json.loads(data_str)
+    return cls(**data_py)
 
 
 class Location(CamelCaseBaseModel):
@@ -24,8 +35,8 @@ class ListingUpdate(CamelCaseBaseModel):
 
 
 class Price(CamelCaseBaseModel):
-    amount: int
-    currency_code: str
+    amount: Optional[int]
+    currency_code: Optional[str]
     frequency: Optional[str]
     qualifier: Optional[str]
 
@@ -78,3 +89,7 @@ class ResultsScreenData(CamelCaseBaseModel):
     properties: List[Property]
     pagination: Pagination
     resultCount: int
+
+    @staticmethod
+    def from_page_content(content: str) -> "ResultsScreenData":
+        return _parse_from_page(content, r'window\.jsonModel =', ResultsScreenData)

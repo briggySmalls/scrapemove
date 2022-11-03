@@ -10,9 +10,10 @@ from scrapemove.scrapemove import request
 @click.command()
 @click.argument('url')
 @click.option('--parallelism', type=int)
-def main(url, parallelism):
+@click.option('--details/--no-details', default=False)
+def main(url, parallelism, details):
     """Console script for scrapemove."""
-    click.echo(request(url, parallelism=parallelism))
+    click.echo(request(url, detailed=details, parallelism=parallelism))
     return 0
 
 

@@ -1,5 +1,6 @@
 """Main module."""
 from scrapemove.models import ResultsScreenData, Property
+from scrapemove.property_details import PropertyDetailsScreenData
 import re
 from typing import List, Dict
 from urllib import parse
@@ -10,6 +11,7 @@ import json
 
 
 _DEFAULT_THREADPOOL = 1
+_VALID_DOMAIN = "www.rightmove.co.uk"
 
 
 def _validate_url(url: str):
@@ -20,9 +22,8 @@ def _validate_url(url: str):
     if parsed.scheme not in valid_protocols:
         raise ValueError(f"Invalid scheme {parsed.scheme} (must be {valid_protocols})")
 
-    valid_domain = "www.rightmove.co.uk"
-    if parsed.netloc != valid_domain:
-        raise ValueError(f"Invalid domain: {parsed.netloc} (must be {valid_domain}")
+    if parsed.netloc != _VALID_DOMAIN:
+        raise ValueError(f"Invalid domain: {parsed.netloc} (must be {_VALID_DOMAIN}")
 
     valid_paths = [f"/{p}/find.html" for p in ["property-to-rent", "property-for-sale", "new-homes-for-sale"]]
     if parsed.path not in valid_paths:
@@ -39,18 +40,14 @@ def _request_results_page(url: str) -> bytes:
     return content
 
 
-def _parse_results_page(content: str) -> ResultsScreenData:
-    soup = BeautifulSoup(content, "html.parser")
-    _REGEX = r'window\.jsonModel ='
-    script = soup.find("script", string=re.compile(_REGEX))
-    data_str = re.sub(_REGEX, '', script.string)
-    data_py = json.loads(data_str)
-    return ResultsScreenData(**data_py)
-
-
 def _load_results_page(url: str) -> ResultsScreenData:
     raw_content = _request_results_page(url)
-    return _parse_results_page(raw_content)
+    return ResultsScreenData.from_page_content(raw_content)
+
+
+def _load_details_page(url: str) -> PropertyDetailsScreenData:
+    raw_content = _request_results_page(url)
+    return PropertyDetailsScreenData.from_page_content(raw_content)
 
 
 def _build_url(url: str, params: Dict[str, str]) -> str:
@@ -68,7 +65,7 @@ def _flat_map(f, xs):
     return ys
 
 
-def request(url: str, parallelism=_DEFAULT_THREADPOOL) -> List[Property]:
+def request(url: str, detailed=False, parallelism=_DEFAULT_THREADPOOL) -> List[Property]:
     # Validate
     _validate_url(url)
     # Request the first page
@@ -81,7 +78,13 @@ def request(url: str, parallelism=_DEFAULT_THREADPOOL) -> List[Property]:
     ]
     with Pool(parallelism) as p:
         subsequent_pages = p.map(_load_results_page, next_page_urls[1:])
-
     # Assemble together
     all_pages = [first_page] + subsequent_pages
-    return _flat_map(lambda r: r.properties, all_pages)
+    property_list = _flat_map(lambda r: r.properties, all_pages)
+    # Request further details if necessary
+    if detailed:
+        with Pool(parallelism) as p:
+            details_pages = p.map(_load_details_page, [f"https://{_VALID_DOMAIN}{p.propertyUrl}" for p in property_list])
+        return list(map(lambda d: d.property_data, details_pages))
+    else:
+        return property_list
