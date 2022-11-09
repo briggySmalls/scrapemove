@@ -1,33 +1,15 @@
 """Data classes to enclose rightmove data"""
-from pydantic import BaseModel, HttpUrl, Field
-from typing import Optional, List
-from enum import Enum
-
 from datetime import datetime
+from typing import List, Optional
 
-from inflection import camelize
+from pydantic import BaseModel, Field, HttpUrl
 
-
-class CamelCaseBaseModel(BaseModel):
-    class Config:
-        alias_generator = lambda s: camelize(s, False)
-
-
-class Location(CamelCaseBaseModel):
-    latitude: Optional[float]
-    longitude: float
+from scrapemove.models.common import CamelCaseBaseModel, Price, Location, _parse_from_page
 
 
 class ListingUpdate(CamelCaseBaseModel):
     reason: str = Field(alias="listingUpdateReason")
     date: datetime = Field(alias="listingUpdateDate")
-
-
-class Price(CamelCaseBaseModel):
-    amount: int
-    currency_code: str
-    frequency: Optional[str]
-    qualifier: Optional[str]
 
 
 class PaginationOption(CamelCaseBaseModel):
@@ -78,3 +60,7 @@ class ResultsScreenData(CamelCaseBaseModel):
     properties: List[Property]
     pagination: Pagination
     resultCount: int
+
+    @staticmethod
+    def from_page_content(content: str) -> "ResultsScreenData":
+        return _parse_from_page(content, r"window\.jsonModel =", ResultsScreenData)
