@@ -24,7 +24,7 @@ class PropertyDetails(CamelCaseBaseModel):
     floorplans: List[HttpUrl]
     location: Location
     nearest_stations: List[Station]
-    bedrooms: int
+    bedrooms: Optional[int]
     bathrooms: Optional[int]
     # Sizings
     brochures: List[str]
