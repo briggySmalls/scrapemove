@@ -20,6 +20,8 @@ class PropertyDetails(CamelCaseBaseModel):
     property_phrase: str
     key_features: List[str]
     prices: Price
+    address: str
+    postcode: str
     images: List[HttpUrl]
     floorplans: List[HttpUrl]
     location: Location
@@ -40,6 +42,9 @@ class PropertyDetails(CamelCaseBaseModel):
         kwargs["description"] = text["description"]
         kwargs["shareDescription"] = text["shareDescription"]
         kwargs["propertyPhrase"] = text["propertyPhrase"]
+        address = kwargs["address"]
+        kwargs["address"] = address["displayAddress"]
+        kwargs["postcode"] = f'{address.get("outcode")}{address.get("incode")}'
         super().__init__(**kwargs)
 
 
