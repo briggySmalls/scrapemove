@@ -5,7 +5,7 @@ from urllib import parse
 
 import requests
 
-from scrapemove.models import Property, ResultsScreenData, PropertyDetailsScreenData
+from scrapemove.models import Property, ResultsScreenData, PropertyDetailsScreenData, CombinedDetails
 
 _DEFAULT_THREADPOOL = 1
 _VALID_DOMAIN = "www.rightmove.co.uk"
@@ -81,13 +81,18 @@ def request(
     # Assemble together
     all_pages = [first_page] + subsequent_pages
     property_list = _flat_map(lambda r: r.properties, all_pages)
-    # Request further details if necessary
-    if detailed:
-        with Pool(parallelism) as p:
-            details_pages = p.map(
-                _load_details_page,
-                [f"https://{_VALID_DOMAIN}{p.propertyUrl}" for p in property_list],
-            )
-        return list(map(lambda d: d.property_data, details_pages))
-    else:
+    if not detailed:
         return property_list
+    # Request further details
+    with Pool(parallelism) as p:
+        details_pages = p.map(
+            _load_details_page,
+            [f"https://{_VALID_DOMAIN}{p.propertyUrl}" for p in property_list],
+        )
+    details_list = [d.property_data for d in details_pages]
+    merged_list = [
+        CombinedDetails(property=p, additional_details=d)
+        for p, d in
+        zip(property_list, details_list)
+    ]
+    return merged_list
