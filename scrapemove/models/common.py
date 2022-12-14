@@ -1,11 +1,10 @@
 import json
 import re
+from typing import Optional
 
 from bs4 import BeautifulSoup
 from inflection import camelize
 from pydantic import BaseModel
-
-from typing import Optional
 
 
 class CamelCaseBaseModel(BaseModel):

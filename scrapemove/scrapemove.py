@@ -5,7 +5,12 @@ from urllib import parse
 
 import requests
 
-from scrapemove.models import Property, ResultsScreenData, PropertyDetailsScreenData, CombinedDetails
+from scrapemove.models import (
+    CombinedDetails,
+    Property,
+    PropertyDetailsScreenData,
+    ResultsScreenData,
+)
 
 _DEFAULT_THREADPOOL = 1
 _VALID_DOMAIN = "www.rightmove.co.uk"
@@ -92,7 +97,6 @@ def request(
     details_list = [d.property_data for d in details_pages]
     merged_list = [
         CombinedDetails(property=p, additional_details=d)
-        for p, d in
-        zip(property_list, details_list)
+        for p, d in zip(property_list, details_list)
     ]
     return merged_list

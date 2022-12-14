@@ -2,7 +2,12 @@ from typing import List, Optional
 
 from pydantic import HttpUrl
 
-from scrapemove.models.common import CamelCaseBaseModel, Location, Price, _parse_from_page
+from scrapemove.models.common import (
+    CamelCaseBaseModel,
+    Location,
+    Price,
+    _parse_from_page,
+)
 
 
 class Station(CamelCaseBaseModel):
