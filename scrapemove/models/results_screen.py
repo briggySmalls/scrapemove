@@ -43,11 +43,11 @@ class Property(CamelCaseBaseModel):
     residential: bool
     students: bool
     auction: bool
-    feesApply: bool
-    displaySize: str
-    propertyUrl: str
-    contactUrl: str
-    firstVisibleDate: datetime
+    fees_apply: bool
+    display_size: str
+    property_url: str
+    contact_url: str
+    first_visible_date: datetime
 
     def __init__(self, **kwargs):
         """Remap some fields"""

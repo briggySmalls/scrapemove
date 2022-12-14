@@ -87,7 +87,7 @@ def request(
     with Pool(parallelism) as p:
         details_pages = p.map(
             _load_details_page,
-            [f"https://{_VALID_DOMAIN}{p.propertyUrl}" for p in property_list],
+            [f"https://{_VALID_DOMAIN}{p.property_url}" for p in property_list],
         )
     details_list = [d.property_data for d in details_pages]
     merged_list = [
