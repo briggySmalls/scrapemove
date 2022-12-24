@@ -29,6 +29,7 @@ click = "*"
 pydantic = "^1.10.2"
 inflection = "^0.5.1"
 beautifulsoup4 = "^4.11.1"
+requests = "^2.28.1"
 
 [tool.poetry.dev-dependencies]
 bumpversion = "*"
